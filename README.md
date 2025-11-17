@@ -1,5 +1,5 @@
 # EX.NO.09        A project on Time series analysis on weather forecasting using ARIMA model 
-### Date: 
+### Date: 17-11-25
 
 ### AIM:
 To Create a project on Time series analysis on weather forecasting using ARIMA model in  Python and compare with other models.
@@ -16,7 +16,55 @@ To Create a project on Time series analysis on weather forecasting using ARIMA m
 7. Evaluate model predictions
 ### PROGRAM:
 
+```python
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from statsmodels.tsa.arima.model import ARIMA
+from sklearn.metrics import mean_squared_error
+
+data = pd.read_csv('GoldPrice(2013-2023).csv')
+
+numeric_cols = ["Price", "Open", "High", "Low"]
+for col in numeric_cols:
+    data[col] = data[col].astype(str).str.replace(",", "").astype(float)
+
+data["Date"] = pd.to_datetime(data["Date"])
+
+data = data.sort_values("Date")
+
+data.set_index("Date", inplace=True)
+
+def arima_model(data, target_variable, order):
+    train_size = int(len(data) * 0.8)
+    train_data, test_data = data[:train_size], data[train_size:]
+
+    model = ARIMA(train_data[target_variable], order=order)
+    fitted_model = model.fit()
+
+    forecast = fitted_model.forecast(steps=len(test_data))
+
+    rmse = np.sqrt(mean_squared_error(test_data[target_variable], forecast))
+
+    plt.figure(figsize=(10, 6))
+    plt.plot(train_data.index, train_data[target_variable], label="Training Data")
+    plt.plot(test_data.index, test_data[target_variable], label="Testing Data")
+    plt.plot(test_data.index, forecast, label="Forecasted Data")
+    plt.xlabel("Date")
+    plt.ylabel(target_variable)
+    plt.title("ARIMA Forecasting for " + target_variable)
+    plt.legend()
+    plt.show()
+
+    print("Root Mean Squared Error (RMSE):", rmse)
+
+arima_model(data, "Price", order=(5,1,0))
+```
+
 ### OUTPUT:
+
+<img width="1071" height="677" alt="image" src="https://github.com/user-attachments/assets/4e72d3fc-6e11-4c28-9770-1eb14899a721" />
+
 
 
 ### RESULT:
